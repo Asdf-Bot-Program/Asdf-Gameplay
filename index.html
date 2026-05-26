@@ -10,10 +10,10 @@
 :root{
   --bg:#040d07;--panel:#060f09;--border:#00ff8833;--border-bright:#00ff88aa;
   --green:#00ff88;--lime:#aaff44;--pink:#ff2d78;
-  --text:#c8ecd8;        /* brightened from #a8d8b8 */
-  --text-body:#b0d8c0;   /* for paragraph / description text */
-  --dim:#5a9870;         /* brightened from #2d6645 — used for secondary labels */
-  --dim2:#3d7055;        /* mid-tone for less-important labels */
+  --text:#c8ecd8;
+  --text-body:#b0d8c0;
+  --dim:#5a9870;
+  --dim2:#3d7055;
   --glow:0 0 10px #00ff8855,0 0 30px #00ff8818;
 }
 html{scroll-behavior:smooth;}
@@ -50,7 +50,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
 .hud-btn:hover,.hud-btn.on{color:var(--green);border-color:var(--green)66;box-shadow:0 0 8px #00ff8822;}
 .hud-time{font-size:10px;color:var(--dim);letter-spacing:3px;min-width:70px;}
 
-/* WORLD MAP NAV — 5 nodes, vertical chain */
+/* WORLD MAP NAV */
 #worldmap{position:fixed;left:0;top:50px;width:210px;height:calc(100vh - 50px);background:var(--panel);border-right:1px solid var(--border);z-index:100;display:flex;flex-direction:column;}
 #map-head{padding:14px 16px;font-size:8px;color:var(--dim2);letter-spacing:4px;border-bottom:1px solid var(--border);}
 #map-wrap{flex:1;display:flex;align-items:center;justify-content:center;}
@@ -108,7 +108,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
 .dg{background:var(--green);box-shadow:0 0 5px var(--green);}
 .db{background:#44bbff;box-shadow:0 0 5px #44bbff;}
 
-/* ── ABOUT ─────────────────────────────────────── */
+/* ABOUT */
 .skgrid{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
 .skcat{background:var(--panel);border:1px solid var(--border);padding:22px;position:relative;}
 .skcat::before{content:attr(data-label);position:absolute;top:-1px;left:16px;font-size:7px;background:var(--panel);color:var(--green);padding:0 8px;letter-spacing:3px;}
@@ -128,7 +128,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
 .tlc{font-size:10px;color:var(--lime);margin-bottom:10px;letter-spacing:1px;}
 .tldesc{font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--text-body);line-height:1.75;font-weight:400;}
 
-/* ── PROJECTS ───────────────────────────────────── */
+/* PROJECTS */
 .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px;}
 .mcard{background:var(--panel);border:1px solid var(--border);padding:22px;position:relative;overflow:hidden;cursor:none;transition:border-color 0.3s;}
 .mcard::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,var(--green)05,transparent);opacity:0;transition:opacity 0.3s;}
@@ -147,7 +147,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
 .mtags{display:flex;flex-wrap:wrap;gap:5px;}
 .tag{font-size:8px;padding:2px 8px;border:1px solid var(--border);color:var(--dim);letter-spacing:1px;}
 
-/* ── MINI GAME ──────────────────────────────────── */
+/* MINI GAME */
 #gcont{display:flex;gap:24px;align-items:flex-start;}
 #gframe{background:var(--panel);border:1px solid var(--border);padding:20px;flex:1;min-width:0;}
 
@@ -209,7 +209,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
 .dbtn{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);background:transparent;border:1px solid var(--border);padding:6px 10px;cursor:none;letter-spacing:1px;transition:all 0.2s;text-align:left;}
 .dbtn:hover,.dbtn.active{color:var(--green);border-color:var(--green)55;}
 
-/* ── CONTACT ─────────────────────────────────────── */
+/* CONTACT */
 .terminal{background:#000;border:1px solid var(--green)33;padding:22px;max-width:580px;position:relative;}
 .terminal::before{content:'CONTACT FORM — ENCRYPTED';position:absolute;top:-1px;left:18px;font-size:7px;background:#000;color:var(--green);padding:0 8px;letter-spacing:3px;}
 .tline{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
@@ -257,7 +257,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
   <div class="hud-time" id="clock">--:--:--</div>
 </header>
 
-<!-- WORLD MAP — 5 nodes, clean vertical chain -->
+<!-- WORLD MAP -->
 <nav id="worldmap">
   <div id="map-head">// NAVIGATE //</div>
   <div id="map-wrap">
@@ -431,7 +431,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
     </div>
   </section>
 
-  <!-- MINI GAME — Matrix Breach Protocol -->
+  <!-- MINI GAME -->
   <section id="arcade" class="section">
     <div class="sh"><span class="st">// 04 //</span><h2 class="stitle">MINI GAME</h2><div class="sline"></div><span class="snum">MATRIX BREACH</span></div>
     <div id="gcont">
@@ -518,7 +518,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
 </main>
 
 <script>
-/* ══════ BOOT ══════════════════════════════════════════════ */
+/* BOOT */
 const LINES=['> Loading portfolio...','> Establishing connection...','> Identity confirmed.','> Decrypting project archive...','> All systems ready.','','> Welcome, William.'];
 let bl=0,bd=false;
 const bt=document.getElementById('boot-text');
@@ -533,7 +533,7 @@ function finBoot(){if(bd)return;bd=true;const b=document.getElementById('boot');
 function skipBoot(){finBoot();}
 setTimeout(showLine,400);
 
-/* ══════ CURSOR ════════════════════════════════════════════ */
+/* CURSOR */
 const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
 let mx=0,my=0,rx=0,ry=0;
 document.addEventListener('mousemove',e=>{
@@ -551,7 +551,7 @@ function addHover(el){
 }
 document.querySelectorAll('button,a,.m-node,.mcard').forEach(addHover);
 
-/* ══════ NAV ═══════════════════════════════════════════════ */
+/* NAV */
 const ZONE_LABELS={nexus:'HOME',dossier:'ABOUT',missions:'PROJECTS',arcade:'MINI GAME',uplink:'CONTACT'};
 function nav(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
@@ -563,14 +563,14 @@ function nav(id){
   if(id==='arcade')buildHackUI();
 }
 
-/* ══════ CLOCK ═════════════════════════════════════════════ */
+/* CLOCK */
 function tick(){const n=new Date();document.getElementById('clock').textContent=[n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');}
 setInterval(tick,1000);tick();
 
-/* ══════ SCANLINES ═════════════════════════════════════════ */
+/* SCANLINES */
 function toggleScanlines(){const sc=document.getElementById('scanlines'),btn=document.getElementById('scn-btn');const on=sc.style.display!=='none';sc.style.display=on?'none':'block';btn.classList.toggle('on',!on);}
 
-/* ══════ AMBIENT AUDIO ══════════════════════════════════════ */
+/* AMBIENT AUDIO */
 let actx=null,anodes=[],snd=false;
 function toggleSound(){const btn=document.getElementById('snd-btn');if(!snd){startAmb();btn.classList.add('on');btn.textContent='♪ MUSIC: ON';snd=true;}else{stopAmb();btn.classList.remove('on');btn.textContent='♪ MUSIC: OFF';snd=false;}}
 function startAmb(){
@@ -585,19 +585,7 @@ function startAmb(){
 }
 function stopAmb(){anodes.forEach(o=>{try{o.stop();}catch(e){}});anodes=[];if(actx){actx.close();actx=null;}}
 
-/* ══════════════════════════════════════════════════════════
-   HACKING MINI-GAME — Matrix Breach Protocol
-   Rules:
-     • 5×5 grid of 2-digit hex codes
-     • First pick: any cell in row 0 (top row)
-     • Each pick after: must be in the SAME COLUMN as last pick (row-locked)
-       then same ROW as last pick (col-locked), alternating
-     • Buffer = sequence of picks (max bufSize)
-     • 3 target sequences — match them by having them appear
-       consecutively anywhere in your buffer
-     • Timer counts down; game ends on timer=0 or buffer full
-   ══════════════════════════════════════════════════════════ */
-
+/* HACKING MINI-GAME */
 const CODES = ['BD','E9','55','1C','FF','7A','3E','B2','C0','44','08','28','F9','76','A1'];
 const DIFF = [
   {time:30, buf:7, seqLen:[2,2,3]},   // easy

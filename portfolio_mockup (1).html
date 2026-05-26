@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>William Gay — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#040d07;--panel:#060f09;--border:#00ff8833;--border-bright:#00ff88aa;
+  --green:#00ff88;--lime:#aaff44;--pink:#ff2d78;
+  --text:#c8ecd8;        /* brightened from #a8d8b8 */
+  --text-body:#b0d8c0;   /* for paragraph / description text */
+  --dim:#5a9870;         /* brightened from #2d6645 — used for secondary labels */
+  --dim2:#3d7055;        /* mid-tone for less-important labels */
+  --glow:0 0 10px #00ff8855,0 0 30px #00ff8818;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;cursor:none;overflow-x:hidden;}
+
+#cursor{position:fixed;pointer-events:none;z-index:99999;width:24px;height:24px;transform:translate(-50%,-50%);transition:transform 0.08s;}
+#cursor-ring{position:fixed;pointer-events:none;z-index:99998;width:48px;height:48px;border:1px solid var(--green);border-radius:50%;transform:translate(-50%,-50%);transition:width 0.2s,height 0.2s,opacity 0.2s;opacity:0.5;}
+
+#scanlines{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,0.012) 2px,rgba(0,255,136,0.012) 4px);}
+
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background-image:linear-gradient(rgba(0,255,136,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.025) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* BOOT */
+#boot{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9000;
+  display:flex;flex-direction:column;justify-content:center;padding:50px;transition:opacity 0.8s;}
+#boot-text div{font-size:12px;line-height:2;opacity:0;transform:translateX(-8px);transition:opacity 0.25s,transform 0.25s;color:var(--green);}
+#boot-text div.show{opacity:1;transform:translateX(0);}
+#boot-text div.bright{color:#fff;font-size:14px;letter-spacing:1px;}
+#boot-skip{position:absolute;bottom:30px;right:50px;font-size:10px;color:var(--dim2);background:none;border:1px solid var(--dim2);padding:8px 16px;cursor:none;letter-spacing:2px;transition:all 0.2s;}
+#boot-skip:hover{color:var(--green);border-color:var(--green);}
+
+/* HUD */
+#hud{position:fixed;top:0;left:0;width:100%;height:50px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;z-index:1000;gap:16px;}
+.hud-logo{font-family:'Orbitron',monospace;font-size:13px;font-weight:900;color:var(--green);letter-spacing:4px;text-shadow:var(--glow);}
+.hud-div{width:1px;height:22px;background:var(--border);}
+.hud-status{font-size:9px;color:var(--dim);display:flex;align-items:center;gap:6px;letter-spacing:2px;}
+.hud-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.hud-sp{flex:1;}
+.hud-btn{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);background:none;border:1px solid var(--border);padding:5px 12px;cursor:none;letter-spacing:2px;transition:all 0.2s;}
+.hud-btn:hover,.hud-btn.on{color:var(--green);border-color:var(--green)66;box-shadow:0 0 8px #00ff8822;}
+.hud-time{font-size:10px;color:var(--dim);letter-spacing:3px;min-width:70px;}
+
+/* WORLD MAP NAV — 5 nodes, vertical chain */
+#worldmap{position:fixed;left:0;top:50px;width:210px;height:calc(100vh - 50px);background:var(--panel);border-right:1px solid var(--border);z-index:100;display:flex;flex-direction:column;}
+#map-head{padding:14px 16px;font-size:8px;color:var(--dim2);letter-spacing:4px;border-bottom:1px solid var(--border);}
+#map-wrap{flex:1;display:flex;align-items:center;justify-content:center;}
+.m-node{cursor:none;transition:all 0.2s;}
+.m-node:hover .nc,.m-node.active .nc{stroke:var(--green);fill:#00ff8818;filter:drop-shadow(0 0 6px var(--green));}
+.m-node:hover .nl,.m-node.active .nl{fill:var(--green);}
+.nc{fill:#060f09;stroke:var(--dim2);stroke-width:1.5;transition:all 0.2s;}
+.nl{font-family:'Share Tech Mono',monospace;font-size:8px;fill:var(--dim2);transition:fill 0.2s;letter-spacing:1px;}
+.ml{stroke:#3d705533;stroke-width:1;stroke-dasharray:3 3;}
+#map-foot{padding:12px 16px;font-size:8px;color:var(--dim2);border-top:1px solid var(--border);letter-spacing:1px;line-height:1.9;}
+#map-foot span{color:var(--green);}
+
+/* MAIN */
+#main{margin-left:210px;margin-top:50px;min-height:calc(100vh - 50px);position:relative;z-index:1;}
+.section{min-height:100vh;padding:50px 50px;display:none;}
+.section.active{display:block;}
+
+.sh{display:flex;align-items:center;gap:14px;margin-bottom:44px;}
+.st{font-size:8px;color:var(--green);letter-spacing:4px;opacity:0.6;}
+.stitle{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;color:#fff;text-shadow:var(--glow);letter-spacing:2px;}
+.sline{flex:1;height:1px;background:linear-gradient(90deg,var(--green)33,transparent);}
+.snum{font-size:8px;color:var(--dim);letter-spacing:3px;}
+
+/* HOME */
+#nexus .hero{display:grid;grid-template-columns:1fr 280px;gap:40px;align-items:start;}
+.gname{font-family:'Orbitron',monospace;font-size:46px;font-weight:900;color:#fff;line-height:1.1;position:relative;text-shadow:var(--glow);}
+.gname::before{content:attr(data-text);position:absolute;top:0;left:2px;color:var(--pink);animation:g1 5s infinite;clip-path:polygon(0 15%,100% 15%,100% 35%,0 35%);}
+.gname::after{content:attr(data-text);position:absolute;top:0;left:-2px;color:var(--lime);animation:g2 5s infinite;clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%);}
+@keyframes g1{0%,92%,100%{opacity:0;transform:translateX(0);}93%{opacity:.7;transform:translateX(-3px);}95%{opacity:.7;transform:translateX(3px);}96%{opacity:0;}}
+@keyframes g2{0%,88%,100%{opacity:0;transform:translateX(0);}89%{opacity:.7;transform:translateX(3px);}91%{opacity:.7;transform:translateX(-3px);}92%{opacity:0;}}
+.role{font-size:11px;color:var(--green);letter-spacing:3px;margin:14px 0;}
+.bio{font-family:'Rajdhani',sans-serif;font-size:16px;color:var(--text);line-height:1.8;font-weight:400;max-width:480px;margin-bottom:28px;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;}
+.stat{border:1px solid var(--border);padding:14px;background:var(--panel);position:relative;}
+.stat::before{content:'';position:absolute;top:0;left:0;width:30%;height:2px;background:var(--green);}
+.sn{font-family:'Orbitron',monospace;font-size:26px;font-weight:700;color:var(--green);display:block;}
+.sl{font-size:8px;color:var(--dim);letter-spacing:2px;margin-top:3px;}
+.btns{display:flex;gap:14px;}
+.bp{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--bg);background:var(--green);border:none;padding:11px 26px;cursor:none;letter-spacing:2px;transition:all 0.2s;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+.bp:hover{background:#fff;box-shadow:0 0 20px var(--green);}
+.bs{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);background:transparent;border:1px solid var(--green)55;padding:11px 26px;cursor:none;letter-spacing:2px;transition:all 0.2s;}
+.bs:hover{border-color:var(--green);box-shadow:0 0 10px #00ff8822;}
+.avframe{border:1px solid var(--border);padding:3px;position:relative;}
+.avframe::before,.avframe::after{content:'';position:absolute;width:18px;height:18px;}
+.avframe::before{top:-2px;right:-2px;border-top:2px solid var(--green);border-right:2px solid var(--green);}
+.avframe::after{bottom:-2px;left:-2px;border-bottom:2px solid var(--green);border-left:2px solid var(--green);}
+.avinner{background:var(--panel);width:260px;height:260px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.avplaceholder{font-family:'Orbitron',monospace;font-size:70px;font-weight:900;color:#00ff8818;}
+.avscan{position:absolute;top:-5%;left:0;width:100%;height:3px;background:linear-gradient(transparent,var(--green)33,transparent);animation:scan 3s infinite linear;}
+@keyframes scan{from{top:-5%;}to{top:105%;}}
+.avgrid{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(#00ff8807 1px,transparent 1px),linear-gradient(90deg,#00ff8807 1px,transparent 1px);background-size:20px 20px;}
+.stati{display:flex;flex-direction:column;gap:6px;margin-top:14px;}
+.statrow{display:flex;align-items:center;gap:8px;font-size:9px;color:var(--dim);}
+.dot{width:5px;height:5px;border-radius:50%;}
+.dg{background:var(--green);box-shadow:0 0 5px var(--green);}
+.db{background:#44bbff;box-shadow:0 0 5px #44bbff;}
+
+/* ── ABOUT ─────────────────────────────────────── */
+.skgrid{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+.skcat{background:var(--panel);border:1px solid var(--border);padding:22px;position:relative;}
+.skcat::before{content:attr(data-label);position:absolute;top:-1px;left:16px;font-size:7px;background:var(--panel);color:var(--green);padding:0 8px;letter-spacing:3px;}
+.skrow{margin-bottom:14px;}
+.skname{display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;color:var(--text);letter-spacing:1px;}
+.skpct{color:var(--green);font-weight:bold;}
+.skbg{height:4px;background:#ffffff0f;border-radius:2px;}
+.skbar{height:100%;background:linear-gradient(90deg,var(--green),var(--lime));border-radius:2px;position:relative;}
+.skbar::after{content:'';position:absolute;right:-1px;top:-4px;width:8px;height:8px;background:var(--green);border-radius:50%;box-shadow:0 0 6px var(--green);}
+/* experience timeline */
+.tl{grid-column:1/-1;position:relative;padding-left:28px;margin-top:10px;}
+.tl::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--green)55,transparent);}
+.tlitem{position:relative;margin-bottom:24px;background:var(--panel);border:1px solid var(--border);padding:20px 20px 18px;}
+.tlitem::before{content:'';position:absolute;left:-24px;top:20px;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
+.tld{font-size:9px;color:var(--green);letter-spacing:3px;margin-bottom:5px;}
+.tlt{font-family:'Orbitron',monospace;font-size:14px;color:#ffffff;margin-bottom:4px;letter-spacing:1px;}
+.tlc{font-size:10px;color:var(--lime);margin-bottom:10px;letter-spacing:1px;}
+.tldesc{font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--text-body);line-height:1.75;font-weight:400;}
+
+/* ── PROJECTS ───────────────────────────────────── */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px;}
+.mcard{background:var(--panel);border:1px solid var(--border);padding:22px;position:relative;overflow:hidden;cursor:none;transition:border-color 0.3s;}
+.mcard::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,var(--green)05,transparent);opacity:0;transition:opacity 0.3s;}
+.mcard:hover{border-color:var(--green)66;}
+.mcard:hover::before{opacity:1;}
+.mid{font-size:7px;color:var(--dim2);letter-spacing:3px;margin-bottom:10px;}
+.mprev{height:110px;background:#040d07;border:1px solid var(--border);margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:44px;color:#00ff8822;font-family:'Orbitron',monospace;overflow:hidden;position:relative;transition:transform 0.3s;}
+.mcard:hover .mprev{transform:scale(1.02);}
+.mpgrid{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(#00ff8805 1px,transparent 1px),linear-gradient(90deg,#00ff8805 1px,transparent 1px);background-size:18px 18px;}
+.mst{position:absolute;top:7px;right:7px;font-size:7px;padding:3px 8px;letter-spacing:2px;}
+.sc{color:#00ff88;border:1px solid #00ff8844;background:#00ff8810;}
+.sa{color:var(--lime);border:1px solid var(--lime)44;background:var(--lime)0d;}
+.sx{color:var(--pink);border:1px solid var(--pink)44;background:var(--pink)0d;}
+.mname{font-family:'Orbitron',monospace;font-size:14px;color:#ffffff;margin-bottom:8px;letter-spacing:1px;}
+.mdesc{font-family:'Rajdhani',sans-serif;font-size:13px;color:var(--text-body);line-height:1.65;font-weight:400;margin-bottom:14px;}
+.mtags{display:flex;flex-wrap:wrap;gap:5px;}
+.tag{font-size:8px;padding:2px 8px;border:1px solid var(--border);color:var(--dim);letter-spacing:1px;}
+
+/* ── MINI GAME ──────────────────────────────────── */
+#gcont{display:flex;gap:24px;align-items:flex-start;}
+#gframe{background:var(--panel);border:1px solid var(--border);padding:20px;flex:1;min-width:0;}
+
+/* Matrix grid */
+#matrix-wrap{display:flex;gap:20px;margin-bottom:18px;}
+#matrix-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;flex-shrink:0;}
+.mcell{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--text);background:#040d07;border:1px solid var(--border);padding:10px 0;text-align:center;cursor:none;transition:all 0.15s;letter-spacing:1px;user-select:none;min-width:52px;}
+.mcell:hover:not(.used):not(.locked){color:#fff;border-color:var(--green);background:#00ff8814;box-shadow:0 0 8px #00ff8822;cursor:none;}
+.mcell.active-row{border-color:var(--green)55;color:var(--green);}
+.mcell.active-col{border-color:var(--lime)55;color:var(--lime);}
+.mcell.selected{background:#00ff8822;border-color:var(--green);color:var(--green);box-shadow:0 0 10px #00ff8833;}
+.mcell.used{background:#0a1a0f;color:var(--dim2);cursor:not-allowed;border-color:#1a3020;}
+.mcell.locked{cursor:not-allowed;opacity:0.4;}
+
+/* Targets panel */
+#targets{flex:1;display:flex;flex-direction:column;gap:10px;}
+.target-seq{background:#040d07;border:1px solid var(--border);padding:12px 14px;}
+.tseq-label{font-size:8px;color:var(--dim);letter-spacing:3px;margin-bottom:8px;}
+.tseq-codes{display:flex;gap:6px;flex-wrap:wrap;}
+.tcode{font-family:'Share Tech Mono',monospace;font-size:13px;padding:5px 10px;border:1px solid var(--border);color:var(--text);transition:all 0.2s;}
+.tcode.matched{background:var(--green);color:#000;border-color:var(--green);box-shadow:0 0 8px var(--green)55;}
+.tcode.partial{border-color:var(--lime);color:var(--lime);}
+.tcode.failed{border-color:var(--pink);color:var(--pink);opacity:0.5;}
+.tseq-done{font-size:8px;margin-top:6px;letter-spacing:2px;color:var(--dim2);}
+.tseq-done.win{color:var(--green);}
+.tseq-done.lose{color:var(--pink);}
+
+/* Buffer */
+#buffer-wrap{margin-bottom:14px;}
+#buffer-label{font-size:8px;color:var(--dim);letter-spacing:3px;margin-bottom:8px;}
+#buffer-slots{display:flex;gap:6px;}
+.bslot{width:52px;height:36px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--green);background:#040d07;}
+.bslot.filled{border-color:var(--green);background:#00ff8810;}
+.bslot.empty{color:var(--dim2);}
+
+/* Timer & score */
+#game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.gst{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.gstl{font-size:8px;color:var(--dim);letter-spacing:2px;}
+.gstv{font-family:'Orbitron',monospace;font-size:20px;color:var(--green);}
+.gstv.warn{color:var(--pink);animation:pulse 0.5s infinite;}
+
+#game-msg{font-family:'Orbitron',monospace;font-size:13px;text-align:center;padding:14px;min-height:48px;color:var(--dim);letter-spacing:2px;}
+#game-msg.win{color:var(--green);text-shadow:var(--glow);}
+#game-msg.lose{color:var(--pink);}
+
+#gbtns{display:flex;justify-content:center;gap:10px;margin-top:10px;}
+.gbtn{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);background:transparent;border:1px solid var(--green)33;padding:8px 20px;cursor:none;letter-spacing:2px;transition:all 0.2s;}
+.gbtn:hover{border-color:var(--green);box-shadow:0 0 8px #00ff8822;}
+
+/* Game sidebar */
+#gside{width:190px;flex-shrink:0;display:flex;flex-direction:column;gap:14px;}
+.gpanel{background:var(--panel);border:1px solid var(--border);padding:14px;}
+.gptitle{font-size:8px;color:var(--green);letter-spacing:3px;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border);}
+.se{display:flex;justify-content:space-between;font-size:9px;padding:4px 0;color:var(--dim);border-bottom:1px solid var(--border)44;}
+.se:last-child{border-bottom:none;}
+.se.top{color:var(--green);}
+#diff-btns{display:flex;flex-direction:column;gap:6px;margin-top:4px;}
+.dbtn{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);background:transparent;border:1px solid var(--border);padding:6px 10px;cursor:none;letter-spacing:1px;transition:all 0.2s;text-align:left;}
+.dbtn:hover,.dbtn.active{color:var(--green);border-color:var(--green)55;}
+
+/* ── CONTACT ─────────────────────────────────────── */
+.terminal{background:#000;border:1px solid var(--green)33;padding:22px;max-width:580px;position:relative;}
+.terminal::before{content:'CONTACT FORM — ENCRYPTED';position:absolute;top:-1px;left:18px;font-size:7px;background:#000;color:var(--green);padding:0 8px;letter-spacing:3px;}
+.tline{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.tprompt{color:var(--green);font-size:11px;flex-shrink:0;}
+.tinput{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;flex:1;padding:4px 0;outline:none;}
+.tinput:focus{border-bottom-color:var(--green);color:#fff;}
+.ttextarea{background:transparent;border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;width:100%;padding:8px;outline:none;resize:none;margin-left:18px;}
+.ttextarea:focus{border-color:var(--green);color:#fff;}
+.tsubmit{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--bg);background:var(--green);border:none;padding:10px 28px;cursor:none;letter-spacing:2px;margin-top:8px;transition:all 0.2s;display:block;margin-left:18px;}
+.tsubmit:hover{background:#fff;box-shadow:0 0 20px var(--green);}
+.clinks{margin-top:36px;display:flex;gap:14px;flex-wrap:wrap;}
+.clink{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim);text-decoration:none;border:1px solid var(--border);padding:10px 18px;transition:all 0.2s;cursor:none;}
+.clink:hover{color:var(--green);border-color:var(--green)55;box-shadow:0 0 8px #00ff8818;}
+</style>
+</head>
+<body>
+
+<div id="boot">
+  <div id="boot-text"></div>
+  <button id="boot-skip" onclick="skipBoot()">[ SKIP ]</button>
+</div>
+
+<div id="scanlines"></div>
+
+<svg id="cursor" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="12" cy="12" r="3" stroke="#00ff88" stroke-width="1.5"/>
+  <line x1="12" y1="2" x2="12" y2="7.5" stroke="#00ff88" stroke-width="1"/>
+  <line x1="12" y1="16.5" x2="12" y2="22" stroke="#00ff88" stroke-width="1"/>
+  <line x1="2" y1="12" x2="7.5" y2="12" stroke="#00ff88" stroke-width="1"/>
+  <line x1="16.5" y1="12" x2="22" y2="12" stroke="#00ff88" stroke-width="1"/>
+  <line x1="4" y1="4" x2="6.5" y2="6.5" stroke="#00ff88" stroke-width="0.5" opacity="0.5"/>
+  <line x1="20" y1="4" x2="17.5" y2="6.5" stroke="#00ff88" stroke-width="0.5" opacity="0.5"/>
+  <line x1="4" y1="20" x2="6.5" y2="17.5" stroke="#00ff88" stroke-width="0.5" opacity="0.5"/>
+  <line x1="20" y1="20" x2="17.5" y2="17.5" stroke="#00ff88" stroke-width="0.5" opacity="0.5"/>
+</svg>
+<div id="cursor-ring"></div>
+
+<header id="hud">
+  <span class="hud-logo">William Gay</span>
+  <div class="hud-div"></div>
+  <div class="hud-status"><div class="hud-dot"></div><span>ONLINE</span></div>
+  <div class="hud-sp"></div>
+  <button class="hud-btn" id="snd-btn" onclick="toggleSound()">♪ MUSIC: OFF</button>
+  <button class="hud-btn on" id="scn-btn" onclick="toggleScanlines()">⊞ SCANLINES</button>
+  <div class="hud-time" id="clock">--:--:--</div>
+</header>
+
+<!-- WORLD MAP — 5 nodes, clean vertical chain -->
+<nav id="worldmap">
+  <div id="map-head">// NAVIGATE //</div>
+  <div id="map-wrap">
+    <svg width="190" height="360" id="msvg">
+      <line class="ml" x1="95" y1="52"  x2="95" y2="98"/>
+      <line class="ml" x1="95" y1="132" x2="95" y2="178"/>
+      <line class="ml" x1="95" y1="212" x2="95" y2="258"/>
+      <line class="ml" x1="95" y1="292" x2="95" y2="328"/>
+
+      <g class="m-node active" data-t="nexus" onclick="nav('nexus')">
+        <circle class="nc" cx="95" cy="35"  r="16"/>
+        <text class="nl" x="95" y="31"  text-anchor="middle">HOME</text>
+        <text class="nl" x="95" y="42"  text-anchor="middle" style="font-size:6px;opacity:.7">INTRO</text>
+      </g>
+      <g class="m-node" data-t="dossier" onclick="nav('dossier')">
+        <circle class="nc" cx="95" cy="115" r="16"/>
+        <text class="nl" x="95" y="111" text-anchor="middle">ABOUT</text>
+        <text class="nl" x="95" y="122" text-anchor="middle" style="font-size:6px;opacity:.7">SKILLS</text>
+      </g>
+      <g class="m-node" data-t="missions" onclick="nav('missions')">
+        <circle class="nc" cx="95" cy="195" r="16"/>
+        <text class="nl" x="95" y="191" text-anchor="middle">WORK</text>
+        <text class="nl" x="95" y="202" text-anchor="middle" style="font-size:6px;opacity:.7">PROJECTS</text>
+      </g>
+      <g class="m-node" data-t="arcade" onclick="nav('arcade')">
+        <circle class="nc" cx="95" cy="275" r="16"/>
+        <text class="nl" x="95" y="271" text-anchor="middle">PLAY</text>
+        <text class="nl" x="95" y="282" text-anchor="middle" style="font-size:6px;opacity:.7">MINI GAME</text>
+      </g>
+      <g class="m-node" data-t="uplink" onclick="nav('uplink')">
+        <circle class="nc" cx="95" cy="345" r="16"/>
+        <text class="nl" x="95" y="341" text-anchor="middle">CONTACT</text>
+        <text class="nl" x="95" y="352" text-anchor="middle" style="font-size:6px;opacity:.7">REACH OUT</text>
+      </g>
+    </svg>
+  </div>
+  <div id="map-foot">
+    X: <span id="cx">0000</span><br>
+    Y: <span id="cy">0000</span><br>
+    <span style="color:var(--green);margin-top:4px;display:block">▶ <span id="czone">HOME</span></span>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- HOME -->
+  <section id="nexus" class="section active">
+    <div class="sh"><span class="st">// 01 //</span><h1 class="stitle">HOME</h1><div class="sline"></div><span class="snum">INTRO</span></div>
+    <div class="hero">
+      <div>
+        <div class="gname" data-text="William Gay">William Gay</div>
+        <div class="role">// GAMEPLAY DEVELOPER //</div>
+        <p class="bio">Hello, my name is William Jordan Gay, and this is the hub for everything I've been working on — games, stories, websites, everything. If you see something you'd like to know more about, feel free to reach out. I'd love to chat. Have a great day!</p>
+        <div class="stats">
+          <div class="stat"><span class="sn">06</span><span class="sl">PROJECTS</span></div>
+          <div class="stat"><span class="sn">04</span><span class="sl">IN PROGRESS</span></div>
+          <div class="stat"><span class="sn">∞</span><span class="sl">STORIES</span></div>
+        </div>
+        <div class="btns">
+          <button class="bp" onclick="nav('missions')">SEE MY WORK</button>
+          <button class="bs" onclick="nav('uplink')">GET IN TOUCH</button>
+        </div>
+      </div>
+      <div>
+        <div class="avframe">
+          <div class="avinner">
+            <div class="avgrid"></div>
+            <div class="avplaceholder">WG</div>
+            <div class="avscan"></div>
+          </div>
+        </div>
+        <div class="stati">
+          <div class="statrow"><div class="dot dg"></div>OPEN TO PROJECTS</div>
+          <div class="statrow"><div class="dot db"></div>UPDATED REGULARLY</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="dossier" class="section">
+    <div class="sh"><span class="st">// 02 //</span><h2 class="stitle">ABOUT</h2><div class="sline"></div><span class="snum">SKILLS & EXPERIENCE</span></div>
+    <div class="skgrid">
+      <div class="skcat" data-label="// TECHNICAL SKILLS //">
+        <div class="skrow"><div class="skname"><span>GAME ENGINE (UNREAL / UNITY)</span><span class="skpct">88%</span></div><div class="skbg"><div class="skbar" style="width:88%"></div></div></div>
+        <div class="skrow"><div class="skname"><span>C# SCRIPTING</span><span class="skpct">80%</span></div><div class="skbg"><div class="skbar" style="width:80%"></div></div></div>
+        <div class="skrow"><div class="skname"><span>WEB DEVELOPMENT (HTML / CSS / JS)</span><span class="skpct">75%</span></div><div class="skbg"><div class="skbar" style="width:75%"></div></div></div>
+        <div class="skrow"><div class="skname"><span>SHADERS & VISUAL FX</span><span class="skpct">65%</span></div><div class="skbg"><div class="skbar" style="width:65%"></div></div></div>
+      </div>
+      <div class="skcat" data-label="// CREATIVE SKILLS //">
+        <div class="skrow"><div class="skname"><span>NARRATIVE DESIGN</span><span class="skpct">95%</span></div><div class="skbg"><div class="skbar" style="width:95%"></div></div></div>
+        <div class="skrow"><div class="skname"><span>WORLDBUILDING</span><span class="skpct">92%</span></div><div class="skbg"><div class="skbar" style="width:92%"></div></div></div>
+        <div class="skrow"><div class="skname"><span>UI / UX DESIGN</span><span class="skpct">72%</span></div><div class="skbg"><div class="skbar" style="width:72%"></div></div></div>
+        <div class="skrow"><div class="skname"><span>LEVEL DESIGN</span><span class="skpct">78%</span></div><div class="skbg"><div class="skbar" style="width:78%"></div></div></div>
+      </div>
+      <div class="tl">
+        <div class="tlitem">
+          <div class="tld">2022 — PRESENT</div>
+          <div class="tlt">ASSOCIATE TEACHER</div>
+          <div class="tlc">SUFFOLK PUBLIC SCHOOLS</div>
+          <div class="tldesc">Instructed students in Algebra, Functions, Data Analysis, Intro to Computer Science, Discrete Mathematics, and Data Science. Developed and implemented engaging lesson plans aligned with curriculum standards. Introduced students to state-of-the-art computer program technologies to strengthen analytical skills.</div>
+        </div>
+        <div class="tlitem">
+          <div class="tld">2022 — 2023</div>
+          <div class="tlt">GAME ADVISOR / PROGRAMMER</div>
+          <div class="tlc">IMPARTIAL</div>
+          <div class="tldesc">Collaborated with Impartial to develop "Justice Well Played," a visual novel simulating criminal court proceedings for law students. Built gameplay mechanics using Unity and C#, developed the choice-making system, and managed GitHub for the programming team.</div>
+        </div>
+        <div class="tlitem">
+          <div class="tld">2020 — 2021</div>
+          <div class="tlt">GAME DEVELOPER</div>
+          <div class="tlc">OLD DOMINION UNIVERSITY</div>
+          <div class="tldesc">Helped kick off development of "Monarch Odyssey," a Location-Based Augmented Reality game for the ODU campus. Served as Lead Programmer for Spring 2022, guiding the team to build the Building Capture Mechanic, Creature Befriending Mini-Game, and Stacking Mini-Game.</div>
+        </div>
+        <div class="tlitem">
+          <div class="tld">2018 — 2019</div>
+          <div class="tlt">COMPUTER LAB ASSISTANT</div>
+          <div class="tlc">PAUL D. CAMP COMMUNITY COLLEGE</div>
+          <div class="tldesc">Assisted students and staff in the campus computer lab, maintaining equipment functionality through routine inspections and troubleshooting. Provided timely technical support to faculty, staff, and students to keep operations running smoothly.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="missions" class="section">
+    <div class="sh"><span class="st">// 03 //</span><h2 class="stitle">MY WORK</h2><div class="sline"></div><span class="snum">PROJECTS</span></div>
+    <div class="mgrid">
+      <div class="mcard">
+        <div class="mid">// PROJECT 001 //</div>
+        <div class="mprev"><div class="mpgrid"></div><span style="position:relative;z-index:1">⬡</span><div class="mst sx">IN PROGRESS</div></div>
+        <div class="mname">H.E.L.M.</div>
+        <div class="mdesc">A hack-and-slash RPG built in Unreal Engine. Features multiple playable characters with unique abilities, parkour mechanics like wall climbing, a money system, and a full shop. Shown at the 2022 East Coast Game Conference and ODU Game Expo. All programming, model implementation, animation blueprints, and UI are my own work.</div>
+        <div class="mtags"><span class="tag">UNREAL</span><span class="tag">WIP</span><span class="tag">ACTION RPG</span></div>
+      </div>
+      <div class="mcard">
+        <div class="mid">// PROJECT 002 //</div>
+        <div class="mprev"><div class="mpgrid"></div><span style="position:relative;z-index:1">◈</span><div class="mst sx">IN PROGRESS</div></div>
+        <div class="mname">Point Noctis</div>
+        <div class="mdesc">A puzzle platformer built solo for ODU's Mars Fest 2022 Game Jam in one week. Features gravity manipulation, time slow abilities, a depleting air system, and explosive hazards. All programming, UI, and level design done by me. Available on Itch.io.</div>
+        <div class="mtags"><span class="tag">UNREAL</span><span class="tag">GAME JAM</span><span class="tag">PLATFORMER</span></div>
+      </div>
+      <div class="mcard">
+        <div class="mid">// PROJECT 003 //</div>
+        <div class="mprev"><div class="mpgrid"></div><span style="position:relative;z-index:1">▲</span><div class="mst sx">IN PROGRESS</div></div>
+        <div class="mname">Da-Bloons</div>
+        <div class="mdesc">Inspired by the viral TikTok "Dabloons" trend, this Unreal Engine 4 game turns the meme into a real game experience using a randomized algorithm. Features a full inventory system and Dabloon economy. Shown at the 2023 East Coast Game Conference.</div>
+        <div class="mtags"><span class="tag">UNREAL</span><span class="tag">WIP</span><span class="tag">CASUAL</span></div>
+      </div>
+      <div class="mcard">
+        <div class="mid">// PROJECT 004 //</div>
+        <div class="mprev"><div class="mpgrid"></div><span style="position:relative;z-index:1">◆</span><div class="mst sx">IN PROGRESS</div></div>
+        <div class="mname">Zephyr Run</div>
+        <div class="mdesc">A survival FPS built for THEA 395. Survive waves of robots using an assault rifle, with sprint and crouch options, a full animation state machine, a conservative ammo tracking system, and a regenerating shield mechanic.</div>
+        <div class="mtags"><span class="tag">UNREAL</span><span class="tag">FPS</span><span class="tag">SURVIVAL</span></div>
+      </div>
+      <div class="mcard">
+        <div class="mid">// PROJECT 005 //</div>
+        <div class="mprev"><div class="mpgrid"></div><span style="position:relative;z-index:1">⊛</span><div class="mst sx">IN PROGRESS</div></div>
+        <div class="mname">Justice Well Played</div>
+        <div class="mdesc">A visual novel game simulating a criminal court proceeding for future law students, developed with nonprofit org Impartial. Built in Unity with a custom scene/text manager. I worked on the choice-making system and managed GitHub for the programming team.</div>
+        <div class="mtags"><span class="tag">UNITY</span><span class="tag">VISUAL NOVEL</span><span class="tag">EDUCATIONAL</span></div>
+      </div>
+      <div class="mcard">
+        <div class="mid">// PROJECT 006 //</div>
+        <div class="mprev"><div class="mpgrid"></div><span style="position:relative;z-index:1">⬡</span><div class="mst sx">IN PROGRESS</div></div>
+        <div class="mname">Monarch Odyssey</div>
+        <div class="mdesc">An AR game set on the ODU campus, designed to help students navigate buildings and facilities. Built in Unity with Mapbox. Features multiple mini-games. I served as Lead Programmer for Spring 2022, building the Building Capture and Creature Befriending systems.</div>
+        <div class="mtags"><span class="tag">UNITY</span><span class="tag">AR</span><span class="tag">MAPBOX</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MINI GAME — Matrix Breach Protocol -->
+  <section id="arcade" class="section">
+    <div class="sh"><span class="st">// 04 //</span><h2 class="stitle">MINI GAME</h2><div class="sline"></div><span class="snum">MATRIX BREACH</span></div>
+    <div id="gcont">
+      <div id="gframe">
+        <div id="game-top">
+          <div class="gst"><span class="gstl">TIME</span><span class="gstv" id="g-timer">30</span></div>
+          <div class="gst"><span class="gstl">SCORE</span><span class="gstv" id="g-score">000</span></div>
+          <div class="gst"><span class="gstl">SEQUENCES</span><span class="gstv" id="g-seq">0/3</span></div>
+          <div class="gst"><span class="gstl">BUFFER</span><span class="gstv" id="g-buf">0/7</span></div>
+        </div>
+
+        <!-- Buffer -->
+        <div id="buffer-wrap">
+          <div id="buffer-label">// BUFFER — YOUR SELECTED CODES //</div>
+          <div id="buffer-slots"></div>
+        </div>
+
+        <!-- Matrix + Targets side by side -->
+        <div id="matrix-wrap">
+          <div>
+            <div style="font-size:8px;color:var(--dim);letter-spacing:3px;margin-bottom:8px;">// CODE MATRIX — SELECT A CODE //</div>
+            <div id="matrix-grid"></div>
+          </div>
+          <div id="targets">
+            <div style="font-size:8px;color:var(--dim);letter-spacing:3px;margin-bottom:4px;">// TARGET SEQUENCES TO MATCH //</div>
+          </div>
+        </div>
+
+        <div id="game-msg">Click [ START ] to begin hacking.</div>
+        <div id="gbtns">
+          <button class="gbtn" onclick="startHack()">[ START ]</button>
+          <button class="gbtn" onclick="resetHack()">[ RESET ]</button>
+        </div>
+      </div>
+
+      <div id="gside">
+        <div class="gpanel">
+          <div class="gptitle">// HOW TO PLAY //</div>
+          <div style="font-size:9px;color:var(--text-body);line-height:1.9">
+            Select codes from the matrix to fill your buffer.<br><br>
+            <span style="color:var(--green)">First pick:</span> any cell in <b>Row 1</b>.<br>
+            <span style="color:var(--lime)">Next pick:</span> any cell in the <b>column</b> you just used.<br>
+            Then alternate: <b>row → column → row...</b><br><br>
+            Match the target sequences before time runs out or your buffer fills.
+          </div>
+        </div>
+        <div class="gpanel">
+          <div class="gptitle">// DIFFICULTY //</div>
+          <div id="diff-btns">
+            <button class="dbtn active" onclick="setDiff(0,this)">▸ EASY — 30s / 7 slots</button>
+            <button class="dbtn" onclick="setDiff(1,this)">▸ NORMAL — 25s / 6 slots</button>
+            <button class="dbtn" onclick="setDiff(2,this)">▸ HARD — 18s / 5 slots</button>
+          </div>
+        </div>
+        <div class="gpanel">
+          <div class="gptitle">// HIGH SCORES //</div>
+          <div class="se top"><span>WG_PRIME</span><span>300</span></div>
+          <div class="se"><span>GHOST</span><span>200</span></div>
+          <div class="se"><span>VXOID</span><span>100</span></div>
+          <div class="se"><span>—</span><span>—</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="uplink" class="section">
+    <div class="sh"><span class="st">// 05 //</span><h2 class="stitle">CONTACT</h2><div class="sline"></div><span class="snum">GET IN TOUCH</span></div>
+    <p style="font-family:'Rajdhani',sans-serif;font-size:15px;color:var(--text-body);margin-bottom:28px;font-weight:400;">Want to collaborate, hire, or just talk games? Send a message below — I typically reply within 24–48 hours.</p>
+    <div class="terminal">
+      <div class="tline"><span class="tprompt">NAME &gt;</span><input class="tinput" type="text" placeholder="Your name"></div>
+      <div class="tline"><span class="tprompt">EMAIL &gt;</span><input class="tinput" type="email" placeholder="Your email address"></div>
+      <div class="tline" style="align-items:flex-start"><span class="tprompt" style="padding-top:7px">MSG &gt;</span><textarea class="ttextarea" rows="5" placeholder="What would you like to say?"></textarea></div>
+      <button class="tsubmit">[ SEND MESSAGE ]</button>
+    </div>
+    <div class="clinks">
+      <a class="clink">◈ GITHUB</a>
+      <a class="clink">▲ LINKEDIN</a>
+      <a class="clink">⬡ ITCH.IO</a>
+      <a class="clink">◆ DISCORD</a>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ══════ BOOT ══════════════════════════════════════════════ */
+const LINES=['> Loading portfolio...','> Establishing connection...','> Identity confirmed.','> Decrypting project archive...','> All systems ready.','','> Welcome, William.'];
+let bl=0,bd=false;
+const bt=document.getElementById('boot-text');
+function showLine(){
+  if(bl>=LINES.length){setTimeout(finBoot,700);return;}
+  const d=document.createElement('div');d.textContent=LINES[bl];
+  if(bl>=5)d.classList.add('bright');
+  bt.appendChild(d);setTimeout(()=>d.classList.add('show'),40);
+  bl++;setTimeout(showLine,bl<=4?300:600);
+}
+function finBoot(){if(bd)return;bd=true;const b=document.getElementById('boot');b.style.opacity='0';setTimeout(()=>b.style.display='none',800);}
+function skipBoot(){finBoot();}
+setTimeout(showLine,400);
+
+/* ══════ CURSOR ════════════════════════════════════════════ */
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+  document.getElementById('cx').textContent=String(Math.round(mx)).padStart(4,'0');
+  document.getElementById('cy').textContent=String(Math.round(my)).padStart(4,'0');
+});
+(function ar(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(ar);})();
+document.addEventListener('mousedown',()=>{cur.style.transform='translate(-50%,-50%) scale(0.6)';ring.style.width='32px';ring.style.height='32px';});
+document.addEventListener('mouseup',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';ring.style.width='48px';ring.style.height='48px';});
+function addHover(el){
+  el.addEventListener('mouseenter',()=>{ring.style.width='60px';ring.style.height='60px';ring.style.opacity='0.9';});
+  el.addEventListener('mouseleave',()=>{ring.style.width='48px';ring.style.height='48px';ring.style.opacity='0.5';});
+}
+document.querySelectorAll('button,a,.m-node,.mcard').forEach(addHover);
+
+/* ══════ NAV ═══════════════════════════════════════════════ */
+const ZONE_LABELS={nexus:'HOME',dossier:'ABOUT',missions:'PROJECTS',arcade:'MINI GAME',uplink:'CONTACT'};
+function nav(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.m-node').forEach(n=>n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const node=document.querySelector(`[data-t="${id}"]`);
+  if(node)node.classList.add('active');
+  document.getElementById('czone').textContent=ZONE_LABELS[id]||id.toUpperCase();
+  if(id==='arcade')buildHackUI();
+}
+
+/* ══════ CLOCK ═════════════════════════════════════════════ */
+function tick(){const n=new Date();document.getElementById('clock').textContent=[n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':');}
+setInterval(tick,1000);tick();
+
+/* ══════ SCANLINES ═════════════════════════════════════════ */
+function toggleScanlines(){const sc=document.getElementById('scanlines'),btn=document.getElementById('scn-btn');const on=sc.style.display!=='none';sc.style.display=on?'none':'block';btn.classList.toggle('on',!on);}
+
+/* ══════ AMBIENT AUDIO ══════════════════════════════════════ */
+let actx=null,anodes=[],snd=false;
+function toggleSound(){const btn=document.getElementById('snd-btn');if(!snd){startAmb();btn.classList.add('on');btn.textContent='♪ MUSIC: ON';snd=true;}else{stopAmb();btn.classList.remove('on');btn.textContent='♪ MUSIC: OFF';snd=false;}}
+function startAmb(){
+  actx=new(window.AudioContext||window.webkitAudioContext)();
+  const mg=actx.createGain();mg.gain.value=0.07;mg.connect(actx.destination);
+  [55,82.4,110,164.8].forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type=i<2?'sine':'triangle';o.frequency.value=f;g.gain.value=0.25;o.connect(g);g.connect(mg);o.start();anodes.push(o);});
+  const sh=actx.createOscillator(),shg=actx.createGain();sh.type='sawtooth';sh.frequency.value=880;
+  const shf=actx.createBiquadFilter();shf.type='lowpass';shf.frequency.value=1200;shg.gain.value=0.015;
+  sh.connect(shf);shf.connect(shg);shg.connect(mg);sh.start();anodes.push(sh);
+  const lfo=actx.createOscillator(),lfoG=actx.createGain();lfo.frequency.value=0.08;lfoG.gain.value=0.012;
+  lfo.connect(lfoG);lfoG.connect(shg.gain);lfo.start();anodes.push(lfo);
+}
+function stopAmb(){anodes.forEach(o=>{try{o.stop();}catch(e){}});anodes=[];if(actx){actx.close();actx=null;}}
+
+/* ══════════════════════════════════════════════════════════
+   HACKING MINI-GAME — Matrix Breach Protocol
+   Rules:
+     • 5×5 grid of 2-digit hex codes
+     • First pick: any cell in row 0 (top row)
+     • Each pick after: must be in the SAME COLUMN as last pick (row-locked)
+       then same ROW as last pick (col-locked), alternating
+     • Buffer = sequence of picks (max bufSize)
+     • 3 target sequences — match them by having them appear
+       consecutively anywhere in your buffer
+     • Timer counts down; game ends on timer=0 or buffer full
+   ══════════════════════════════════════════════════════════ */
+
+const CODES = ['BD','E9','55','1C','FF','7A','3E','B2','C0','44','08','28','F9','76','A1'];
+const DIFF = [
+  {time:30, buf:7, seqLen:[2,2,3]},   // easy
+  {time:25, buf:6, seqLen:[2,3,3]},   // normal
+  {time:18, buf:5, seqLen:[3,3,4]},   // hard
+];
+let diffIdx=0;
+let grid=[],targets=[],buffer=[],bufSize=7;
+let pickMode='row', lastRow=-1, lastCol=-1;
+let hackRunning=false, timerVal=30, timerInt=null, hackScore=0;
+let built=false;
+
+function setDiff(i,btn){diffIdx=i;document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(hackRunning)resetHack();}
+
+function rnd(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function rndCode(){return rnd(CODES);}
+
+function buildHackUI(){
+  if(built)return;built=true;
+  buildGrid();buildBufferSlots();buildTargets();updateHUD();
+  document.getElementById('game-msg').textContent='Click [ START ] to begin hacking.';
+}
+
+function buildGrid(){
+  const g=document.getElementById('matrix-grid');g.innerHTML='';
+  grid=[];
+  for(let r=0;r<5;r++){grid[r]=[];for(let c=0;c<5;c++){const code=rndCode();grid[r][c]=code;}}
+  renderGrid();
+}
+
+function renderGrid(){
+  const g=document.getElementById('matrix-grid');g.innerHTML='';
+  for(let r=0;r<5;r++){
+    for(let c=0;c<5;c++){
+      const cell=document.createElement('div');
+      cell.className='mcell';cell.textContent=grid[r][c];
+      cell.dataset.r=r;cell.dataset.c=c;
+      if(hackRunning){
+        const isFirst=lastRow===-1&&lastCol===-1;
+        const rowLock=pickMode==='row';
+        const colLock=pickMode==='col';
+        if(isFirst&&r===0) cell.classList.add('active-row');
+        else if(rowLock&&r===lastRow) cell.classList.add('active-row');
+        else if(colLock&&c===lastCol) cell.classList.add('active-col');
+        else cell.classList.add('locked');
+        // mark used
+        if(buffer.some(b=>b.r===r&&b.c===c)) cell.classList.add('used');
+        cell.addEventListener('click',onCellClick);
+        addHover(cell);
+      }
+      g.appendChild(cell);
+    }
+  }
+}
+
+function buildBufferSlots(){
+  bufSize=DIFF[diffIdx].buf;
+  const wrap=document.getElementById('buffer-slots');wrap.innerHTML='';
+  for(let i=0;i<bufSize;i++){
+    const s=document.createElement('div');s.className='bslot empty';s.textContent='--';s.id='bs'+i;
+    wrap.appendChild(s);
+  }
+}
+
+function buildTargets(){
+  const cfg=DIFF[diffIdx];
+  targets=[];
+  const wrap=document.getElementById('targets');
+  wrap.querySelectorAll('.target-seq').forEach(e=>e.remove());
+  for(let i=0;i<3;i++){
+    const len=cfg.seqLen[i];
+    const seq=[];for(let j=0;j<len;j++)seq.push(rndCode());
+    targets.push({seq,matched:false,failed:false});
+    const div=document.createElement('div');div.className='target-seq';div.id='tseq'+i;
+    div.innerHTML=`<div class="tseq-label">// SEQUENCE ${i+1} — ${len} CODES //</div>
+      <div class="tseq-codes">${seq.map((c,j)=>`<span class="tcode" id="tc${i}_${j}">${c}</span>`).join('')}</div>
+      <div class="tseq-done" id="tsdone${i}">PENDING</div>`;
+    wrap.appendChild(div);
+  }
+}
+
+function startHack(){
+  if(hackRunning)return;
+  built=true;hackRunning=true;hackScore=0;
+  buffer=[];lastRow=-1;lastCol=-1;pickMode='row';
+  timerVal=DIFF[diffIdx].time;
+  buildGrid();buildBufferSlots();buildTargets();
+  targets.forEach((_,i)=>{document.getElementById('tsdone'+i).textContent='PENDING';document.getElementById('tsdone'+i).className='tseq-done';});
+  updateHUD();
+  document.getElementById('game-msg').textContent='Select a code from ROW 1 to begin.';
+  document.getElementById('game-msg').className='';
+  timerInt=setInterval(()=>{
+    timerVal--;updateHUD();
+    if(timerVal<=5)document.getElementById('g-timer').classList.add('warn');
+    if(timerVal<=0)endHack(false);
+  },1000);
+}
+
+function onCellClick(e){
+  if(!hackRunning)return;
+  const r=parseInt(this.dataset.r),c=parseInt(this.dataset.c);
+  if(this.classList.contains('used')||this.classList.contains('locked'))return;
+  // validate pick
+  const isFirst=lastRow===-1&&lastCol===-1;
+  if(isFirst&&r!==0)return;
+  if(!isFirst){
+    if(pickMode==='row'&&r!==lastRow)return;
+    if(pickMode==='col'&&c!==lastCol)return;
+  }
+  buffer.push({r,c,code:grid[r][c]});
+  lastRow=r;lastCol=c;
+  pickMode=pickMode==='row'?'col':'row';
+  // fill buffer slot
+  const slot=document.getElementById('bs'+(buffer.length-1));
+  if(slot){slot.textContent=grid[r][c];slot.classList.remove('empty');slot.classList.add('filled');}
+  // check targets
+  checkTargets();
+  updateHUD();
+  renderGrid();
+  // check buffer full
+  if(buffer.length>=bufSize){
+    setTimeout(()=>endHack(targets.every(t=>t.matched||t.failed)||true),300);
+  }
+  // next pick instruction
+  const nextPick=pickMode==='row'?`Select from ROW ${lastRow+1}`:`Select from COLUMN ${lastCol+1}`;
+  document.getElementById('game-msg').textContent=nextPick;
+}
+
+function checkTargets(){
+  const bufCodes=buffer.map(b=>b.code);
+  let changed=false;
+  targets.forEach((t,i)=>{
+    if(t.matched)return;
+    // check if sequence appears consecutively in buffer
+    const str=bufCodes.join(',');
+    const tstr=t.seq.join(',');
+    if(str.includes(tstr)){
+      t.matched=true;hackScore+=t.seq.length*100;changed=true;
+      t.seq.forEach((_,j)=>{const el=document.getElementById(`tc${i}_${j}`);if(el)el.classList.add('matched');});
+      const done=document.getElementById('tsdone'+i);done.textContent='✓ SEQUENCE CRACKED';done.className='tseq-done win';
+    } else {
+      // partial highlight — show how many match from start of remaining buffer
+      const remaining=bufCodes.slice(bufCodes.length-t.seq.length);
+      t.seq.forEach((code,j)=>{
+        const el=document.getElementById(`tc${i}_${j}`);if(!el)return;
+        el.classList.remove('partial');
+        if(remaining[j]===code)el.classList.add('partial');
+      });
+    }
+  });
+  if(changed&&targets.every(t=>t.matched)){
+    setTimeout(()=>endHack(true),400);
+  }
+}
+
+function endHack(win){
+  clearInterval(timerInt);hackRunning=false;
+  const msg=document.getElementById('game-msg');
+  if(win&&targets.every(t=>t.matched)){
+    msg.textContent=`SYSTEM BREACHED — SCORE: ${hackScore}`;msg.className='win';
+  } else if(timerVal<=0){
+    msg.textContent=`TIME OUT — SCORE: ${hackScore}`;msg.className='lose';
+    targets.forEach((t,i)=>{if(!t.matched){const done=document.getElementById('tsdone'+i);done.textContent='✗ FAILED';done.className='tseq-done lose';}});
+  } else {
+    msg.textContent=`BUFFER FULL — SCORE: ${hackScore}`;msg.className=targets.some(t=>t.matched)?'win':'lose';
+  }
+  document.getElementById('g-timer').classList.remove('warn');
+}
+
+function resetHack(){
+  clearInterval(timerInt);hackRunning=false;built=false;
+  buffer=[];lastRow=-1;lastCol=-1;pickMode='row';timerVal=DIFF[diffIdx].time;hackScore=0;
+  document.getElementById('g-timer').classList.remove('warn');
+  buildHackUI();
+  document.getElementById('game-msg').textContent='Click [ START ] to begin hacking.';
+  document.getElementById('game-msg').className='';
+}
+
+function updateHUD(){
+  document.getElementById('g-timer').textContent=timerVal;
+  document.getElementById('g-score').textContent=String(hackScore).padStart(3,'0');
+  const matched=targets.filter(t=>t.matched).length;
+  document.getElementById('g-seq').textContent=`${matched}/3`;
+  document.getElementById('g-buf').textContent=`${buffer.length}/${bufSize}`;
+}
+</script>
+</body>
+</html>
